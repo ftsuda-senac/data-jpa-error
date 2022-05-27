@@ -40,5 +40,4 @@ public class PersonEntity {
     @Embedded
     private EntityAuditInfo auditInfo = new EntityAuditInfo();
 
-
 }

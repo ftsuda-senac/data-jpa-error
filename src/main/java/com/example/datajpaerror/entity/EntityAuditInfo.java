@@ -26,7 +26,6 @@ public class EntityAuditInfo implements Serializable {
     @LastModifiedDate
     private LocalDateTime lastUpdateDate;
 
-
     public EntityAuditInfo(LocalDateTime createDate) {
         this.createDate = createDate;
         this.lastUpdateDate = createDate;

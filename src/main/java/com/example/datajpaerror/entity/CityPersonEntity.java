@@ -5,8 +5,6 @@ import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.FetchType;
 import javax.persistence.ForeignKey;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
@@ -23,10 +21,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class CityPersonEntity extends PersonEntity {
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "city_id", foreignKey = @ForeignKey(name = "fk_person_city_id"))
-    private CityEntity city;
 
     @OneToOne(mappedBy = "person", fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE,
             CascadeType.REFRESH }, orphanRemoval = true)
