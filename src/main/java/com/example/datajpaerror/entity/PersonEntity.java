@@ -1,9 +1,7 @@
 package com.example.datajpaerror.entity;
 
 import javax.persistence.Column;
-import javax.persistence.Embedded;
 import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
@@ -11,13 +9,11 @@ import javax.persistence.InheritanceType;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@EntityListeners(AuditingEntityListener.class)
 @Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "person", uniqueConstraints = {@UniqueConstraint(name = "uk_person_email", columnNames = "email")})
 @Getter
@@ -36,8 +32,5 @@ public class PersonEntity {
 
     @Column(length = 200, nullable = false)
     private String name;
-
-    @Embedded
-    private EntityAuditInfo auditInfo = new EntityAuditInfo();
 
 }

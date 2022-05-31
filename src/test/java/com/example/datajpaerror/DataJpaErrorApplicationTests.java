@@ -2,102 +2,68 @@ package com.example.datajpaerror;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityTransaction;
+import javax.persistence.Persistence;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import com.example.datajpaerror.entity.CityPersonEntity;
 import com.example.datajpaerror.entity.DocAcmeEntity;
 import com.example.datajpaerror.entity.DocXptoEntity;
-import com.example.datajpaerror.repository.CityPersonRepository;
-import com.example.datajpaerror.repository.DocumentRepository;
 
-import javax.persistence.EntityManager;
-
-@DataJpaTest
 class DataJpaErrorApplicationTests {
-
-    @Autowired
-    private CityPersonRepository cityPersonRepository;
-
-    @Autowired
-    private DocumentRepository documentRepository;
-
-    @Autowired
-    private EntityManager em;
-
-    @Test
-    void runTest() {
-
-        String personName = "Test person";
-
-        CityPersonEntity person = new CityPersonEntity();
-        person.setName(personName);
-        person.setEmail("test.person@test.com");
-        person = cityPersonRepository.save(person);
-        cityPersonRepository.flush();
-
-        DocAcmeEntity docAcme = new DocAcmeEntity();
-        docAcme.setNumber("1234");
-        docAcme.setNewDoc(true);
-        docAcme.setFieldX("valX");
-        docAcme.setPerson(person);
-        person.setDocAcme(docAcme);
-        documentRepository.save(docAcme);
-
-        DocXptoEntity docXpto = new DocXptoEntity();
-        docXpto.setNumber("9876");
-        docXpto.setNewDoc(true);
-        docXpto.setFieldY("valY");
-        docXpto.setPerson(person);
-        person.setDocXpto(docXpto);
-        documentRepository.save(docXpto);
-        documentRepository.flush();
-
-        List<CityPersonEntity> listPeople = cityPersonRepository.findAll();
-        for (CityPersonEntity entity : listPeople) {
-            System.out.println("\n========\nID: " + entity.getId() + ", Name: " + entity.getName() + "\nDocAcme: "
-                    + entity.getDocAcme().getNumber() + ", fieldX: " + entity.getDocAcme().getFieldX() + "\nDocXpto: "
-                    + entity.getDocXpto().getNumber() + ", fieldY: " + entity.getDocXpto().getFieldY() + "\n\n");
-
-            assertThat(entity.getName()).isEqualTo(personName);
-        }
-    }
 
     @Test
     void runTestWithPureJPA() {
 
-        String personName = "Test person";
+        try {
+            EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("hbm-em");
+            EntityManager em = entityManagerFactory.createEntityManager();
 
-        CityPersonEntity person = new CityPersonEntity();
-        person.setName(personName);
-        person.setEmail("test.person@test.com");
-        em.persist(person);
-        em.flush();
+            EntityTransaction transaction = em.getTransaction();
+            transaction.begin();
 
-        DocAcmeEntity docAcme = new DocAcmeEntity();
-        docAcme.setNumber("1234");
-        docAcme.setNewDoc(true);
-        docAcme.setFieldX("valX");
-        docAcme.setPerson(person);
-        person.setDocAcme(docAcme);
-        em.persist(docAcme);
+            String personName = "Test person";
 
-        DocXptoEntity docXpto = new DocXptoEntity();
-        docXpto.setNumber("9876");
-        docXpto.setNewDoc(true);
-        docXpto.setFieldY("valY");
-        docXpto.setPerson(person);
-        person.setDocXpto(docXpto);
-        em.persist(docXpto);
-        em.flush();
+            CityPersonEntity person = new CityPersonEntity();
+            person.setName(personName);
+            person.setEmail("test.person@test.com");
+            em.persist(person);
+            em.flush();
 
-        List<CityPersonEntity> listPeople = cityPersonRepository.findAll();
-        for (CityPersonEntity entity : listPeople) {
-            System.out.println("\n========\nID: " + entity.getId() + ", Name: " + entity.getName() + "\nDocAcme: "
-                    + entity.getDocAcme().getNumber() + ", fieldX: " + entity.getDocAcme().getFieldX() + "\nDocXpto: "
-                    + entity.getDocXpto().getNumber() + ", fieldY: " + entity.getDocXpto().getFieldY() + "\n\n");
+            DocAcmeEntity docAcme = new DocAcmeEntity();
+            docAcme.setNumber("1234");
+            docAcme.setNewDoc(true);
+            docAcme.setFieldX("valX");
+            docAcme.setPerson(person);
+            person.setDocAcme(docAcme);
+            em.persist(docAcme);
 
-            assertThat(entity.getName()).isEqualTo(personName);
+            DocXptoEntity docXpto = new DocXptoEntity();
+            docXpto.setNumber("9876");
+            docXpto.setNewDoc(true);
+            docXpto.setFieldY("valY");
+            docXpto.setPerson(person);
+            person.setDocXpto(docXpto);
+            em.persist(docXpto);
+            em.flush();
+
+            List<CityPersonEntity> listPeople =
+                    em.createQuery("SELECT  cp FROM CityPersonEntity cp", CityPersonEntity.class).getResultList();
+            for (CityPersonEntity entity : listPeople) {
+                System.out.println("\n========\nID: " + entity.getId() + ", Name: " + entity.getName() + "\nDocAcme: "
+                        + entity.getDocAcme().getNumber() + ", fieldX: " + entity.getDocAcme().getFieldX()
+                        + "\nDocXpto: " + entity.getDocXpto().getNumber() + ", fieldY: "
+                        + entity.getDocXpto().getFieldY() + "\n\n");
+
+                assertThat(entity.getName()).isEqualTo(personName);
+            }
+
+            transaction.commit();
+            em.close();
+            entityManagerFactory.close();
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
     }
 
