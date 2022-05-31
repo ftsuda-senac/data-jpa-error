@@ -11,6 +11,8 @@ import com.example.datajpaerror.entity.DocXptoEntity;
 import com.example.datajpaerror.repository.CityPersonRepository;
 import com.example.datajpaerror.repository.DocumentRepository;
 
+import javax.persistence.EntityManager;
+
 @DataJpaTest
 class DataJpaErrorApplicationTests {
 
@@ -19,6 +21,9 @@ class DataJpaErrorApplicationTests {
 
     @Autowired
     private DocumentRepository documentRepository;
+
+    @Autowired
+    private EntityManager em;
 
     @Test
     void runTest() {
@@ -47,6 +52,44 @@ class DataJpaErrorApplicationTests {
         person.setDocXpto(docXpto);
         documentRepository.save(docXpto);
         documentRepository.flush();
+
+        List<CityPersonEntity> listPeople = cityPersonRepository.findAll();
+        for (CityPersonEntity entity : listPeople) {
+            System.out.println("\n========\nID: " + entity.getId() + ", Name: " + entity.getName() + "\nDocAcme: "
+                    + entity.getDocAcme().getNumber() + ", fieldX: " + entity.getDocAcme().getFieldX() + "\nDocXpto: "
+                    + entity.getDocXpto().getNumber() + ", fieldY: " + entity.getDocXpto().getFieldY() + "\n\n");
+
+            assertThat(entity.getName()).isEqualTo(personName);
+        }
+    }
+
+    @Test
+    void runTestWithPureJPA() {
+
+        String personName = "Test person";
+
+        CityPersonEntity person = new CityPersonEntity();
+        person.setName(personName);
+        person.setEmail("test.person@test.com");
+        em.persist(person);
+        em.flush();
+
+        DocAcmeEntity docAcme = new DocAcmeEntity();
+        docAcme.setNumber("1234");
+        docAcme.setNewDoc(true);
+        docAcme.setFieldX("valX");
+        docAcme.setPerson(person);
+        person.setDocAcme(docAcme);
+        em.persist(docAcme);
+
+        DocXptoEntity docXpto = new DocXptoEntity();
+        docXpto.setNumber("9876");
+        docXpto.setNewDoc(true);
+        docXpto.setFieldY("valY");
+        docXpto.setPerson(person);
+        person.setDocXpto(docXpto);
+        em.persist(docXpto);
+        em.flush();
 
         List<CityPersonEntity> listPeople = cityPersonRepository.findAll();
         for (CityPersonEntity entity : listPeople) {
