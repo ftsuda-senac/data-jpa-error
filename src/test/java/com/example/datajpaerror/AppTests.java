@@ -1,21 +1,36 @@
 package com.example.datajpaerror;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
-import javax.transaction.Transactional;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import com.example.datajpaerror.entity.CityPersonEntity;
 import com.example.datajpaerror.entity.DocAcmeEntity;
 import com.example.datajpaerror.entity.DocXptoEntity;
 
-public class DataJpaErrorApplication /* implements CommandLineRunner */ {
+class AppTests {
 
-    @Transactional
-    public void run() {
+    private static EntityManagerFactory entityManagerFactory;
+
+    @BeforeAll
+    public static void init() {
+        entityManagerFactory = Persistence.createEntityManagerFactory("hbm-em");
+    }
+
+    @AfterAll
+    public static void destroy() {
+        entityManagerFactory.close();
+    }
+
+    @Test
+    void runTest() {
+
         try {
-            EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("hbm-em");
             EntityManager em = entityManagerFactory.createEntityManager();
 
             EntityTransaction transaction = em.getTransaction();
@@ -54,72 +69,15 @@ public class DataJpaErrorApplication /* implements CommandLineRunner */ {
                         + "\nDocXpto: " + entity.getDocXpto().getNumber() + ", fieldY: "
                         + entity.getDocXpto().getFieldY() + "\n\n");
 
+                assertThat(entity.getName()).isEqualTo(personName);
             }
 
             transaction.commit();
             em.close();
-            entityManagerFactory.close();
         } catch (Exception ex) {
             ex.printStackTrace();
+            throw ex;
         }
     }
-
-    public static void main(String[] args) {
-        new DataJpaErrorApplication().run();
-    }
-
-    /*
-     * @Autowired
-     * private CityPersonRepository cityPersonRepository;
-     *
-     * @Autowired
-     * private DocumentRepository documentRepository;
-     *
-     *
-     *
-     * private void addData() {
-     *
-     * CityPersonEntity person = new CityPersonEntity();
-     * person.setName("Test person");
-     * person.setEmail("test.person@test.com");
-     * person = cityPersonRepository.save(person);
-     * cityPersonRepository.flush();
-     *
-     * DocAcmeEntity docAcme = new DocAcmeEntity();
-     * docAcme.setNumber("1234");
-     * docAcme.setNewDoc(true);
-     * docAcme.setFieldX("valX");
-     * docAcme.setPerson(person);
-     * person.setDocAcme(docAcme);
-     * documentRepository.save(docAcme);
-     *
-     * DocXptoEntity docXpto = new DocXptoEntity();
-     * docXpto.setNumber("9876");
-     * docXpto.setNewDoc(true);
-     * docXpto.setFieldY("valY");
-     * docXpto.setPerson(person);
-     * person.setDocXpto(docXpto);
-     * documentRepository.save(docXpto);
-     * documentRepository.flush();
-     *
-     * }
-     *
-     * private void findData() {
-     * List<CityPersonEntity> listPeople = cityPersonRepository.findAll();
-     * for (CityPersonEntity entity : listPeople) {
-     * System.out.println("\n========\nID: " + entity.getId() + ", Name: " + entity.getName() + "\nDocAcme: "
-     * + entity.getDocAcme().getNumber() + ", fieldX: " + entity.getDocAcme().getFieldX() + "\nDocXpto: "
-     * + entity.getDocXpto().getNumber() + ", fieldY: " + entity.getDocXpto().getFieldY() + "\n\n");
-     * }
-     * }
-     *
-     * @Override
-     *
-     * @Transactional
-     * public void run(String... args) throws Exception {
-     * // addData();
-     * // findData();
-     * }
-     */
 
 }

@@ -1,21 +1,19 @@
 package com.example.datajpaerror;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
-import org.junit.jupiter.api.Test;
+import javax.transaction.Transactional;
 import com.example.datajpaerror.entity.CityPersonEntity;
 import com.example.datajpaerror.entity.DocAcmeEntity;
 import com.example.datajpaerror.entity.DocXptoEntity;
 
-class DataJpaErrorApplicationTests {
+public class App {
 
-    @Test
-    void runTestWithPureJPA() {
-
+    @Transactional
+    public void run() {
         try {
             EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("hbm-em");
             EntityManager em = entityManagerFactory.createEntityManager();
@@ -56,7 +54,6 @@ class DataJpaErrorApplicationTests {
                         + "\nDocXpto: " + entity.getDocXpto().getNumber() + ", fieldY: "
                         + entity.getDocXpto().getFieldY() + "\n\n");
 
-                assertThat(entity.getName()).isEqualTo(personName);
             }
 
             transaction.commit();
@@ -65,6 +62,10 @@ class DataJpaErrorApplicationTests {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+    }
+
+    public static void main(String[] args) {
+        new App().run();
     }
 
 }
