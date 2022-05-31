@@ -117,3 +117,6 @@ DocXpto: 9876, fieldY: valY
 ```
 
 Spring Data issue: https://github.com/spring-projects/spring-data-jpa/issues/2552
+
+Hibernate issue: https://hibernate.atlassian.net/browse/HHH-15307
+
